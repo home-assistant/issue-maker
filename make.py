@@ -1,3 +1,4 @@
+"""Make issues on github.com."""
 from pathlib import Path
 from pprint import pprint
 
@@ -47,7 +48,7 @@ def make_github_issue(
 
 
 def make_github_issue_no_notify(token, title, body, labels):
-    """Does not fire webhooks or create notifications."""
+    """Create issues while not firing webhooks or creating notifications."""
     # Create an issue on github.com using the given parameters
     # Url to create issues via POST
     url = "https://api.github.com/repos/%s/%s/import/issues" % (REPO_OWNER, REPO_NAME)
