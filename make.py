@@ -1,4 +1,6 @@
 """Make issues on github.com."""
+from dataclasses import dataclass
+from functools import partial
 from pathlib import Path
 from pprint import pprint
 
@@ -16,12 +18,22 @@ REPO_NAME = "core"
 SETTINGS = dict(help_option_names=["-h", "--help"])
 
 
+@dataclass
+class Auth:
+    """Represent the github authentication details."""
+
+    repo_name: str
+    repo_owner: str
+    token: str
+    username: str
+
+
 def make_github_issue(
-    token, title, body=None, assignee=None, milestone=None, labels=None
+    auth, title, body=None, assignee=None, milestone=None, labels=None
 ):
     """Create an issue on github.com using the given parameters."""
     # Our url to create issues via POST
-    url = "https://api.github.com/repos/%s/%s/issues" % (REPO_OWNER, REPO_NAME)
+    url = f"https://api.github.com/repos/{auth.repo_owner}/{auth.repo_name}/issues"
 
     # Create our issue
     issue = {
@@ -34,28 +46,30 @@ def make_github_issue(
 
     # Add the issue to our repository
     response = requests.post(
-        url, json=issue, headers={"Authorization": f"token {token}"}
+        url, json=issue, headers={"Authorization": f"token {auth.token}"}
     )
 
     print(response.status_code)
     pprint(response.json())
 
     if response.status_code == 201:
-        print('Successfully created Issue "%s"' % title)
+        print(f'Successfully created Issue "{title}"')
     else:
-        print('Could not create Issue "%s"' % title)
+        print(f'Could not create Issue "{title}"')
         print("Response:", response.content)
 
 
-def make_github_issue_no_notify(token, title, body, labels):
+def make_github_issue_no_notify(auth, title, body, labels):
     """Create issues while not firing webhooks or creating notifications."""
     # Create an issue on github.com using the given parameters
     # Url to create issues via POST
-    url = "https://api.github.com/repos/%s/%s/import/issues" % (REPO_OWNER, REPO_NAME)
+    url = (
+        f"https://api.github.com/repos/{auth.repo_owner}/{auth.repo_name}/import/issues"
+    )
 
     # Headers
     headers = {
-        "Authorization": f"token {token}",
+        "Authorization": f"token {auth.token}",
         "Accept": "application/vnd.github.golden-comet-preview+json",
     }
 
@@ -81,9 +95,9 @@ def make_github_issue_no_notify(token, title, body, labels):
     pprint(response.json())
 
     if response.status_code == 202:
-        print('Successfully created Issue "%s"' % title)
+        print(f'Successfully created Issue "{title}"')
     else:
-        print('Could not create Issue "%s"' % title)
+        print(f'Could not create Issue "{title}"')
         print("Response:", response.content)
 
 
@@ -141,7 +155,24 @@ def common_issue_options(func):
     func = click.option(
         "-t",
         "--token",
+        prompt=True,
+        hide_input=True,
         help="Set the github auth token.",
+    )(func)
+    func = click.option(
+        "-R",
+        "--repo",
+        help="Set the github target repo.",
+    )(func)
+    func = click.option(
+        "-u",
+        "--username",
+        help="Set the github username.",
+    )(func)
+    func = click.option(
+        "-O",
+        "--owner",
+        help="Set the github repository owner.",
     )(func)
     func = click.option(
         "-T",
@@ -151,7 +182,8 @@ def common_issue_options(func):
     func = click.option(
         "-b",
         "--body",
-        help="Set the issue body.",
+        type=click.Path(exists=True, dir_okay=False),
+        help="Set file path to a markdown file with issue body.",
     )(func)
     func = click.option(
         "-a",
@@ -164,7 +196,13 @@ def common_issue_options(func):
         "--milestone",
         help="Set the issue milestone.",
     )(func)
-    func = click.option("-l", "--label", multiple=True, help="Set the issue label.")(
+    func = click.option(
+        "-d",
+        "--domains",
+        is_flag=True,
+        help="Create one issue per domain.",
+    )(func)
+    func = click.option("-l", "--labels", multiple=True, help="Set the issue labels.")(
         func
     )
     return func
@@ -182,12 +220,27 @@ def cli():
     "-s", "--silent", is_flag=True, help="Make an issue without notifications."
 )
 @common_issue_options
-def issue(silent, **kwargs):
+def issue(silent, owner, repo, token, username, body, domains, **kwargs):
     """Create issue on github.com."""
+    repo_name = repo or REPO_NAME
+    repo_owner = owner or REPO_OWNER
+    username = username or USERNAME
+    token = token or Path(".token").read_text().strip()
+    if body:
+        body = Path(body).read_text()
+    auth = Auth(
+        repo_name=repo_name, repo_owner=repo_owner, username=username, token=token
+    )
+
+    issue_func = partial(make_github_issue, auth, body=body, **kwargs)
+
     if silent:
-        make_github_issue_no_notify(**kwargs)
-    else:
-        make_github_issue(**kwargs)
+        issue_func = partial(make_github_issue_no_notify, auth, body=body, **kwargs)
+
+    if domains:
+        pass
+
+    issue_func()
 
 
 cli.add_command(issue)
