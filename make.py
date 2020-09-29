@@ -125,6 +125,7 @@ def common_issue_options(func):
     func = click.option(
         "-T",
         "--title",
+        required=True,
         help="Set the issue title.",
     )(func)
     func = click.option(
@@ -193,8 +194,7 @@ def issue(silent, owner, repo, token, username, title, body, labels, domains, **
         domain_body = None
         domain_labels = None
         for domain in domain_names:
-            if title:
-                domain_title = title.replace("{{ DOMAIN }}", domain)
+            domain_title = title.replace("{{ DOMAIN }}", domain)
             if body:
                 domain_body = body.replace("{{ DOMAIN }}", domain)
             if labels:
