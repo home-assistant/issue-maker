@@ -105,6 +105,7 @@ def common_issue_options(func):
         "--token",
         prompt=True,
         hide_input=True,
+        default="",
         help="Set the auth token.",
     )(func)
     func = click.option(
