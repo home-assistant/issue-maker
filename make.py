@@ -105,27 +105,27 @@ def common_issue_options(func):
         "--token",
         prompt=True,
         hide_input=True,
-        help="Set the github auth token.",
+        help="Set the auth token.",
     )(func)
     func = click.option(
         "-R",
         "--repo",
         default=REPO_NAME,
         show_default=True,
-        help="Set the github target repo.",
+        help="Set the target repo.",
     )(func)
     func = click.option(
         "-u",
         "--username",
         required=True,
-        help="Set the github username.",
+        help="Set the username.",
     )(func)
     func = click.option(
         "-O",
         "--owner",
         default=REPO_OWNER,
         show_default=True,
-        help="Set the github repository owner.",
+        help="Set the repository owner.",
     )(func)
     func = click.option(
         "-T",
