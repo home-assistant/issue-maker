@@ -101,55 +101,6 @@ def make_github_issue_no_notify(auth, title, body, labels):
         print("Response:", response.content)
 
 
-def main():
-    """Old main function."""
-    context = {}
-    context["token"] = Path(".token").read_text().strip()
-    template = Path("./issues/test_uncaught.markdown").read_text()
-
-    for domain in [
-        # "abode",
-        # "cast",
-        # "config",
-        "deconz",
-        "default_config",
-        "demo",
-        "discovery",
-        "dsmr",
-        "dynalite",
-        "dyson",
-        "gdacs",
-        "geonetnz_quakes",
-        "homematicip_cloud",
-        "hue",
-        "ios",
-        "local_file",
-        "meteo_france",
-        "mikrotik",
-        "mqtt",
-        "plex",
-        "qwikswitch",
-        "rflink",
-        "samsungtv",
-        "tplink",
-        "tradfri",
-        "unifi_direct",
-        "upnp",
-        "vera",
-        "wunderground",
-        "yr",
-        "zha",
-        "zwave",
-    ]:
-        title = f"Fix {domain} tests that have uncaught exceptions"
-        body = template.replace("{{ DOMAIN }}", domain)
-        labels = [f"integration: {domain}", "to do"]
-        # print(title)
-        # print(body)
-        # print(labels)
-        make_github_issue(title=title, body=body, labels=labels)
-
-
 def common_issue_options(func):
     """Supply common issue options."""
     func = click.option(
@@ -220,7 +171,7 @@ def cli():
     "-s", "--silent", is_flag=True, help="Make an issue without notifications."
 )
 @common_issue_options
-def issue(silent, owner, repo, token, username, body, domains, **kwargs):
+def issue(silent, owner, repo, token, username, title, body, labels, domains, **kwargs):
     """Create issue on github.com."""
     repo_name = repo or REPO_NAME
     repo_owner = owner or REPO_OWNER
@@ -232,15 +183,31 @@ def issue(silent, owner, repo, token, username, body, domains, **kwargs):
         repo_name=repo_name, repo_owner=repo_owner, username=username, token=token
     )
 
-    issue_func = partial(make_github_issue, auth, body=body, **kwargs)
+    issue_func = partial(make_github_issue, auth)
 
     if silent:
-        issue_func = partial(make_github_issue_no_notify, auth, body=body, **kwargs)
+        issue_func = partial(make_github_issue_no_notify, auth)
 
     if domains:
-        pass
+        domain_names = Path("domains.txt").read_text().strip().splitlines()
+        domain_title = None
+        domain_body = None
+        domain_labels = None
+        for domain in domain_names:
+            if title:
+                domain_title = title.replace("{{ DOMAIN }}", domain)
+            if body:
+                domain_body = body.replace("{{ DOMAIN }}", domain)
+            if labels:
+                domain_labels = labels + (f"integration: {domain}",)
 
-    issue_func()
+            issue_func(
+                title=domain_title, body=domain_body, labels=domain_labels, **kwargs
+            )
+
+        return
+
+    issue_func(title=title, body=body, labels=labels, **kwargs)
 
 
 cli.add_command(issue)
