@@ -183,9 +183,10 @@ def issue(silent, owner, repo, token, username, title, body, labels, domains, **
         repo_name=repo_name, repo_owner=repo_owner, username=username, token=token
     )
 
-    issue_func = partial(make_github_issue, auth)
+    issue_func = partial(make_github_issue, auth, **kwargs)
 
     if silent:
+        # the import API doesn't accept optional values
         issue_func = partial(make_github_issue_no_notify, auth)
 
     if domains:
@@ -200,13 +201,11 @@ def issue(silent, owner, repo, token, username, title, body, labels, domains, **
             if labels:
                 domain_labels = labels + (f"integration: {domain}",)
 
-            issue_func(
-                title=domain_title, body=domain_body, labels=domain_labels, **kwargs
-            )
+            issue_func(title=domain_title, body=domain_body, labels=domain_labels)
 
         return
 
-    issue_func(title=title, body=body, labels=labels, **kwargs)
+    issue_func(title=title, body=body, labels=labels)
 
 
 cli.add_command(issue)
