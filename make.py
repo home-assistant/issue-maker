@@ -7,10 +7,6 @@ from pprint import pprint
 import click
 import requests
 
-# Authentication for user filing issue (must have read/write access to
-# repository to add issue to)
-USERNAME = "balloob"
-
 # The repository to add this issue to
 REPO_OWNER = "home-assistant"
 REPO_NAME = "core"
@@ -118,6 +114,7 @@ def common_issue_options(func):
     func = click.option(
         "-u",
         "--username",
+        required=True,
         help="Set the github username.",
     )(func)
     func = click.option(
@@ -175,10 +172,12 @@ def issue(silent, owner, repo, token, username, title, body, labels, domains, **
     """Create issue on github.com."""
     repo_name = repo or REPO_NAME
     repo_owner = owner or REPO_OWNER
-    username = username or USERNAME
     token = token or Path(".token").read_text().strip()
     if body:
         body = Path(body).read_text()
+
+    # Authentication for user filing issue (must have read/write access to
+    # repository to add issue to)
     auth = Auth(
         repo_name=repo_name, repo_owner=repo_owner, username=username, token=token
     )
