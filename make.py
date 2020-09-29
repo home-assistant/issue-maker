@@ -110,6 +110,8 @@ def common_issue_options(func):
     func = click.option(
         "-R",
         "--repo",
+        default=REPO_NAME,
+        show_default=True,
         help="Set the github target repo.",
     )(func)
     func = click.option(
@@ -121,6 +123,8 @@ def common_issue_options(func):
     func = click.option(
         "-O",
         "--owner",
+        default=REPO_OWNER,
+        show_default=True,
         help="Set the github repository owner.",
     )(func)
     func = click.option(
@@ -172,17 +176,13 @@ def cli():
 @common_issue_options
 def issue(silent, owner, repo, token, username, title, body, labels, domains, **kwargs):
     """Create issue on github.com."""
-    repo_name = repo or REPO_NAME
-    repo_owner = owner or REPO_OWNER
     token = token or Path(".token").read_text().strip()
     if body:
         body = Path(body).read_text()
 
     # Authentication for user filing issue (must have read/write access to
     # repository to add issue to)
-    auth = Auth(
-        repo_name=repo_name, repo_owner=repo_owner, username=username, token=token
-    )
+    auth = Auth(repo_name=repo, repo_owner=owner, username=username, token=token)
 
     issue_func = partial(make_github_issue, auth, **kwargs)
 
