@@ -170,12 +170,14 @@ def cli():
     """Batch create github.com issues."""
 
 
-@click.command(options_metavar="<options>")
+@click.command(name="issue", options_metavar="<options>")
 @click.option(
     "-s", "--silent", is_flag=True, help="Make an issue without notifications."
 )
 @common_issue_options
-def issue(silent, owner, repo, token, username, title, body, labels, domains, **kwargs):
+def create_issue(
+    silent, owner, repo, token, username, title, body, labels, domains, **kwargs
+):
     """Create issue on github.com."""
     token = token or Path(".token").read_text().strip()
     if body:
@@ -210,7 +212,7 @@ def issue(silent, owner, repo, token, username, title, body, labels, domains, **
     issue_func(title=title, body=body, labels=labels)
 
 
-cli.add_command(issue)
+cli.add_command(create_issue)
 
 
 if __name__ == "__main__":
