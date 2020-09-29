@@ -151,12 +151,6 @@ def common_issue_options(func):
         "--milestone",
         help="Set the issue milestone.",
     )(func)
-    func = click.option(
-        "-d",
-        "--domains",
-        is_flag=True,
-        help="Create one issue per domain.",
-    )(func)
     func = click.option("-l", "--labels", multiple=True, help="Set the issue labels.")(
         func
     )
@@ -175,9 +169,7 @@ def cli():
     "-s", "--silent", is_flag=True, help="Make an issue without notifications."
 )
 @common_issue_options
-def create_issue(
-    silent, owner, repo, token, username, title, body, labels, domains, **kwargs
-):
+def create_issue(silent, owner, repo, token, username, title, body, labels, **kwargs):
     """Create issue on github.com."""
     token = token or Path(".token").read_text().strip()
     if body:
@@ -193,23 +185,18 @@ def create_issue(
         # the import API doesn't accept optional values
         issue_func = partial(make_github_issue_no_notify, auth)
 
-    if domains:
-        domain_names = Path("domains.txt").read_text().strip().splitlines()
-        domain_title = None
-        domain_body = None
-        domain_labels = None
-        for domain in domain_names:
-            domain_title = title.replace("{{ DOMAIN }}", domain)
-            if body:
-                domain_body = body.replace("{{ DOMAIN }}", domain)
-            if labels:
-                domain_labels = labels + (f"integration: {domain}",)
+    domain_names = Path("domains.txt").read_text().strip().splitlines()
+    domain_title = None
+    domain_body = None
+    domain_labels = None
+    for domain in domain_names:
+        domain_title = title.replace("{{ DOMAIN }}", domain)
+        if body:
+            domain_body = body.replace("{{ DOMAIN }}", domain)
+        if labels:
+            domain_labels = labels + (f"integration: {domain}",)
 
-            issue_func(title=domain_title, body=domain_body, labels=domain_labels)
-
-        return
-
-    issue_func(title=title, body=body, labels=labels)
+        issue_func(title=domain_title, body=domain_body, labels=domain_labels)
 
 
 cli.add_command(create_issue)
