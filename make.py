@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Make issues on github.com."""
 from dataclasses import dataclass
 from functools import partial
