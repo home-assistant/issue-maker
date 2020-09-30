@@ -137,6 +137,7 @@ def common_issue_options(func):
     func = click.option(
         "-b",
         "--body",
+        required=True,
         type=click.Path(exists=True, dir_okay=False),
         help="Set file path to a markdown file with issue body.",
     )(func)
@@ -180,8 +181,8 @@ def create_issue(silent, owner, repo, token, username, title, body, labels, **kw
                 "Token must be provided by promt or in a '.token' file"
             )
             return
-    if body:
-        body = Path(body).read_text()
+
+    body = Path(body).read_text()
 
     # Authentication for user filing issue (must have read/write access to
     # repository to add issue to)
@@ -199,8 +200,7 @@ def create_issue(silent, owner, repo, token, username, title, body, labels, **kw
     domain_labels = None
     for domain in domain_names:
         domain_title = title.replace("{{ DOMAIN }}", domain)
-        if body:
-            domain_body = body.replace("{{ DOMAIN }}", domain)
+        domain_body = body.replace("{{ DOMAIN }}", domain)
         if labels:
             domain_labels = labels + (f"integration: {domain}",)
 
