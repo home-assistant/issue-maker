@@ -144,7 +144,6 @@ def common_issue_options(func):
     func = click.option(
         "-a",
         "--assignee",
-        show_default=True,
         help="Set the issue assignee.",
     )(func)
     func = click.option(
