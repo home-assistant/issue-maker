@@ -31,7 +31,7 @@ It will print coverage information with lines that are missing coverage.
 
 ## Prerequisites
 
-- A working [development environment](https://developers.home-assistant.io/docs/development_environment)
+- A working [development environment](https://developers.home-assistant.io/docs/development_environment).
 
 ## Task
 
