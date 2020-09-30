@@ -171,7 +171,15 @@ def cli():
 @common_issue_options
 def create_issue(silent, owner, repo, token, username, title, body, labels, **kwargs):
     """Create issue on github.com."""
-    token = token or Path(".token").read_text().strip()
+    if not token:
+        try:
+            token = Path(".token").read_text().strip()
+        except FileNotFoundError:
+            print(
+                "Missing '.token' file. "
+                "Token must be provided by promt or in a '.token' file"
+            )
+            return
     if body:
         body = Path(body).read_text()
 
