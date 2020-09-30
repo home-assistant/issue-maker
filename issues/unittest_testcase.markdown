@@ -29,6 +29,10 @@ tox -e py38 -- --cov-report term-missing --cov=homeassistant.components.command_
 
 It will print coverage information with lines that are missing coverage.
 
+## Prerequisites
+
+- A working [development environment](https://developers.home-assistant.io/docs/development_environment)
+
 ## Task
 
 - Rewrite the tests one module at a time and submit the changes as a pull request to this repository.
