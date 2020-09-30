@@ -139,7 +139,7 @@ def common_issue_options(func):
         "--body",
         required=True,
         type=click.Path(exists=True, dir_okay=False),
-        help="Set file path to a markdown file with issue body.",
+        help="Set path to a text file with issue body.",
     )(func)
     func = click.option(
         "-a",
