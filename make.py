@@ -98,65 +98,6 @@ def make_github_issue_no_notify(auth, title, body, labels):
         print("Response:", response.content)
 
 
-def common_issue_options(func):
-    """Supply common issue options."""
-    func = click.option(
-        "-t",
-        "--token",
-        prompt=True,
-        hide_input=True,
-        default="",
-        help="Set the auth token.",
-    )(func)
-    func = click.option(
-        "-R",
-        "--repo",
-        default=REPO_NAME,
-        show_default=True,
-        help="Set the target repo.",
-    )(func)
-    func = click.option(
-        "-u",
-        "--username",
-        required=True,
-        help="Set the username.",
-    )(func)
-    func = click.option(
-        "-O",
-        "--owner",
-        default=REPO_OWNER,
-        show_default=True,
-        help="Set the repository owner.",
-    )(func)
-    func = click.option(
-        "-T",
-        "--title",
-        required=True,
-        help="Set the issue title.",
-    )(func)
-    func = click.option(
-        "-b",
-        "--body",
-        required=True,
-        type=click.Path(exists=True, dir_okay=False),
-        help="Set path to a text file with issue body.",
-    )(func)
-    func = click.option(
-        "-a",
-        "--assignee",
-        help="Set the issue assignee.",
-    )(func)
-    func = click.option(
-        "-m",
-        "--milestone",
-        help="Set the issue milestone.",
-    )(func)
-    func = click.option("-l", "--labels", multiple=True, help="Set the issue labels.")(
-        func
-    )
-    return func
-
-
 @click.group(
     options_metavar="", subcommand_metavar="<command>", context_settings=SETTINGS
 )
@@ -168,7 +109,58 @@ def cli():
 @click.option(
     "-s", "--silent", is_flag=True, help="Make an issue without notifications."
 )
-@common_issue_options
+@click.option(
+    "-t",
+    "--token",
+    prompt=True,
+    hide_input=True,
+    default="",
+    help="Set the auth token.",
+)
+@click.option(
+    "-R",
+    "--repo",
+    default=REPO_NAME,
+    show_default=True,
+    help="Set the target repo.",
+)
+@click.option(
+    "-u",
+    "--username",
+    required=True,
+    help="Set the username.",
+)
+@click.option(
+    "-O",
+    "--owner",
+    default=REPO_OWNER,
+    show_default=True,
+    help="Set the repository owner.",
+)
+@click.option(
+    "-T",
+    "--title",
+    required=True,
+    help="Set the issue title.",
+)
+@click.option(
+    "-b",
+    "--body",
+    required=True,
+    type=click.Path(exists=True, dir_okay=False),
+    help="Set path to a text file with issue body.",
+)
+@click.option(
+    "-a",
+    "--assignee",
+    help="Set the issue assignee.",
+)
+@click.option(
+    "-m",
+    "--milestone",
+    help="Set the issue milestone.",
+)
+@click.option("-l", "--labels", multiple=True, help="Set the issue labels.")
 def create_issue(silent, owner, repo, token, username, title, body, labels, **kwargs):
     """Create issue on github.com."""
     if not token:
