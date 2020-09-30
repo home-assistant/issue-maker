@@ -21,6 +21,14 @@ There are many pytest fixtures to help writing the tests. See:
 Here's an example of a pull request that rewrote a module of `unittest.TestCase` tests to standalone pytest test functions:
 https://github.com/home-assistant/core/pull/40749
 
+Here's an example command to run a single test module with pytest inside tox on Python 3.8:
+
+```sh
+tox -e py38 -- --cov-report term-missing --cov=homeassistant.components.command_line.switch tests/components/command_line/test_switch.py
+```
+
+It will print coverage information with lines that are missing coverage.
+
 ## Task
 
 - Rewrite the tests one module at a time and submit the changes as a pull request to this repository.
