@@ -1,32 +1,24 @@
-from pathlib import Path
+"""Check status of imported issues."""
 from pprint import pprint
-from datetime import datetime
-import sys
+
 import requests
-import json
 
-# Authentication for user filing issue (must have read/write access to
-# repository to add issue to)
-USERNAME = "balloob"
-TOKEN = Path(".token").read_text().strip()
-
-# The repository to add this issue to
-REPO_OWNER = "home-assistant"
-REPO_NAME = "home-assistant"
+from .auth import Auth
+from .exceptions import MissingTokenError
 
 
-def print_status(import_id):
+def print_status(auth, import_id):
+    """Print status."""
     # Create an issue on github.com using the given parameters
     # Url to create issues via POST
-    url = "https://api.github.com/repos/%s/%s/import/issues/%s" % (
-        REPO_OWNER,
-        REPO_NAME,
-        import_id,
+    url = (
+        "https://api.github.com/repos/"
+        f"{auth.repo_owner}/{auth.repo_name}/import/issues/{import_id}"
     )
 
     # Headers
     headers = {
-        "Authorization": "token %s" % TOKEN,
+        "Authorization": f"token {auth.token}",
         "Accept": "application/vnd.github.golden-comet-preview+json",
     }
 
@@ -37,7 +29,15 @@ def print_status(import_id):
     pprint(response.json())
 
 
-print("Import ID? ", end="")
-value = input().strip()
-print()
-print_status(value)
+def check_import_status(*, owner, repo, token, username):
+    """Check import status."""
+    try:
+        auth = Auth.get_auth(
+            repo_name=repo, repo_owner=owner, token=token, username=username
+        )
+    except MissingTokenError:
+        return
+    print("Import ID? ", end="")
+    value = input().strip()
+    print()
+    print_status(auth, value)

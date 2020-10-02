@@ -2,6 +2,7 @@
 import click
 
 from issuemaker.create import create_issue
+from issuemaker.status import check_import_status
 
 # The repository to add this issue to
 REPO_OWNER = "home-assistant"
@@ -17,37 +18,43 @@ def cli():
     """Batch create github.com issues."""
 
 
+def common_auth_options(func):
+    """Provide auth options."""
+    func = click.option(
+        "-t",
+        "--token",
+        prompt=True,
+        hide_input=True,
+        default="",
+        help="Set the auth token.",
+    )(func)
+    func = click.option(
+        "-R",
+        "--repo",
+        default=REPO_NAME,
+        show_default=True,
+        help="Set the target repo.",
+    )(func)
+    func = click.option(
+        "-u",
+        "--username",
+        required=True,
+        help="Set the username.",
+    )(func)
+    func = click.option(
+        "-O",
+        "--owner",
+        default=REPO_OWNER,
+        show_default=True,
+        help="Set the repository owner.",
+    )(func)
+    return func
+
+
 @click.command(name="create", options_metavar="<options>")
+@common_auth_options
 @click.option(
     "-s", "--silent", is_flag=True, help="Make an issue without notifications."
-)
-@click.option(
-    "-t",
-    "--token",
-    prompt=True,
-    hide_input=True,
-    default="",
-    help="Set the auth token.",
-)
-@click.option(
-    "-R",
-    "--repo",
-    default=REPO_NAME,
-    show_default=True,
-    help="Set the target repo.",
-)
-@click.option(
-    "-u",
-    "--username",
-    required=True,
-    help="Set the username.",
-)
-@click.option(
-    "-O",
-    "--owner",
-    default=REPO_OWNER,
-    show_default=True,
-    help="Set the repository owner.",
 )
 @click.option(
     "-T",
@@ -78,7 +85,15 @@ def create_issue_cli(**kwargs):
     create_issue(**kwargs)
 
 
+@click.command(name="status", options_metavar="<options>")
+@common_auth_options
+def check_import_status_cli(**kwargs):
+    """Check import status."""
+    check_import_status(**kwargs)
+
+
 cli.add_command(create_issue_cli)
+cli.add_command(check_import_status_cli)
 
 
 if __name__ == "__main__":
