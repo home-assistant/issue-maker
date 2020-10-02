@@ -1,21 +1,13 @@
 #!/usr/bin/env python3
 """Make issues on github.com."""
-from dataclasses import dataclass
 from functools import partial
 from pathlib import Path
 from pprint import pprint
 
 import requests
 
-
-@dataclass
-class Auth:
-    """Represent the github authentication details."""
-
-    repo_name: str
-    repo_owner: str
-    token: str
-    username: str
+from .auth import Auth
+from .exceptions import MissingTokenError
 
 
 def make_github_issue(
@@ -93,22 +85,14 @@ def make_github_issue_no_notify(auth, title, body, labels):
 
 def create_issue(silent, owner, repo, token, username, title, body, labels, **kwargs):
     """Create issue on github.com."""
-    if not token:
-        try:
-            token = Path(".token").read_text().strip()
-        except FileNotFoundError:
-            print(
-                "Missing '.token' file. "
-                "Token must be provided by promt or in a '.token' file"
-            )
-            return
+    try:
+        auth = Auth.get_auth(
+            repo_name=repo, repo_owner=owner, token=token, username=username
+        )
+    except MissingTokenError:
+        return
 
     body = Path(body).read_text()
-
-    # Authentication for user filing issue (must have read/write access to
-    # repository to add issue to)
-    auth = Auth(repo_name=repo, repo_owner=owner, username=username, token=token)
-
     issue_func = partial(make_github_issue, auth, **kwargs)
 
     if silent:
