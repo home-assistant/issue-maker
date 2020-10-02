@@ -1,7 +1,7 @@
 """Provide a CLI for the issuemaker."""
 import click
 
-from issuemaker.make import create_issue
+from issuemaker.create import create_issue
 
 # The repository to add this issue to
 REPO_OWNER = "home-assistant"
