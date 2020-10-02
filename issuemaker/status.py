@@ -29,7 +29,7 @@ def print_status(auth, import_id):
     pprint(response.json())
 
 
-def check_import_status(*, owner, repo, token, username):
+def check_import_status(*, import_id, owner, repo, token, username):
     """Check import status."""
     try:
         auth = Auth.get_auth(
@@ -37,7 +37,5 @@ def check_import_status(*, owner, repo, token, username):
         )
     except MissingTokenError:
         return
-    print("Import ID? ", end="")
-    value = input().strip()
-    print()
-    print_status(auth, value)
+
+    print_status(auth, import_id)

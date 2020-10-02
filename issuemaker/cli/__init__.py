@@ -87,6 +87,12 @@ def create_issue_cli(**kwargs):
 
 @click.command(name="status", options_metavar="<options>")
 @common_auth_options
+@click.option(
+    "-i",
+    "--import-id",
+    required=True,
+    help="Set the issue import id.",
+)
 def check_import_status_cli(**kwargs):
     """Check import status."""
     check_import_status(**kwargs)
