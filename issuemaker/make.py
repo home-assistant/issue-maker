@@ -5,14 +5,7 @@ from functools import partial
 from pathlib import Path
 from pprint import pprint
 
-import click
 import requests
-
-# The repository to add this issue to
-REPO_OWNER = "home-assistant"
-REPO_NAME = "core"
-
-SETTINGS = dict(help_option_names=["-h", "--help"])
 
 
 @dataclass
@@ -98,69 +91,6 @@ def make_github_issue_no_notify(auth, title, body, labels):
         print("Response:", response.content)
 
 
-@click.group(
-    options_metavar="", subcommand_metavar="<command>", context_settings=SETTINGS
-)
-def cli():
-    """Batch create github.com issues."""
-
-
-@click.command(name="issue", options_metavar="<options>")
-@click.option(
-    "-s", "--silent", is_flag=True, help="Make an issue without notifications."
-)
-@click.option(
-    "-t",
-    "--token",
-    prompt=True,
-    hide_input=True,
-    default="",
-    help="Set the auth token.",
-)
-@click.option(
-    "-R",
-    "--repo",
-    default=REPO_NAME,
-    show_default=True,
-    help="Set the target repo.",
-)
-@click.option(
-    "-u",
-    "--username",
-    required=True,
-    help="Set the username.",
-)
-@click.option(
-    "-O",
-    "--owner",
-    default=REPO_OWNER,
-    show_default=True,
-    help="Set the repository owner.",
-)
-@click.option(
-    "-T",
-    "--title",
-    required=True,
-    help="Set the issue title.",
-)
-@click.option(
-    "-b",
-    "--body",
-    required=True,
-    type=click.Path(exists=True, dir_okay=False),
-    help="Set path to a text file with issue body.",
-)
-@click.option(
-    "-a",
-    "--assignee",
-    help="Set the issue assignee.",
-)
-@click.option(
-    "-m",
-    "--milestone",
-    help="Set the issue milestone.",
-)
-@click.option("-l", "--labels", multiple=True, help="Set the issue labels.")
 def create_issue(silent, owner, repo, token, username, title, body, labels, **kwargs):
     """Create issue on github.com."""
     if not token:
@@ -196,10 +126,3 @@ def create_issue(silent, owner, repo, token, username, title, body, labels, **kw
             domain_labels = labels + (f"integration: {domain}",)
 
         issue_func(title=domain_title, body=domain_body, labels=domain_labels)
-
-
-cli.add_command(create_issue)
-
-
-if __name__ == "__main__":
-    cli()

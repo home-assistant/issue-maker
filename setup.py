@@ -28,6 +28,9 @@ setup(
     include_package_data=True,
     license="Apache-2.0",
     zip_safe=False,
+    entry_points={
+        "console_scripts": ["issuemaker=issuemaker.cli:cli"],
+    },
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
