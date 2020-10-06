@@ -16,4 +16,8 @@ pip install .
 issuemaker --help
 ```
 
-When using the import API each job is queued up and not processed right away. To get the status of your import job, run `python3 status.py`.
+When using the import API each job is queued up and not processed right away. To get the status of your import job use the status CLI command:
+
+```sh
+issuemaker status --help
+```
